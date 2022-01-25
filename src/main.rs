@@ -8,7 +8,6 @@ const DEFAULT_OUTPUT_DIRECTORY: &str = "/home/rafael/Desktop/BB/";
 
 fn main() {
     let params = cli();
-
     application(params);
 }
 
@@ -33,8 +32,6 @@ fn cli() -> Params {
     }
 
     let args = Args::parse();
-
-    println!("{:?}", args);
 
     Params {
         use_default: args.use_default,
