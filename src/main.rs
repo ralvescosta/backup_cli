@@ -1,11 +1,27 @@
+use clap::Parser;
 use std::fs;
 use std::process::Command;
 use std::str::FromStr;
 
-const INPUT_DIRECTORY: &str = "/input/";
-const OUTPUT_DIRECTORY: &str = "/output/";
+const INPUT_DIRECTORY: &str = "/home/rafael/Desktop/AA/";
+const OUTPUT_DIRECTORY: &str = "/home/rafael/Desktop/BB/";
+
+#[derive(Parser, Debug)]
+#[clap(author, version, long_about = None)]
+struct Args {
+    #[clap(short, long)]
+    pub input: String,
+
+    #[clap(short, long)]
+    pub output: String,
+}
 
 fn main() {
+    let args = Args::parse();
+    println!("{:?}", args);
+}
+
+fn opa() {
     let input_dirs = fs::read_dir(INPUT_DIRECTORY).unwrap();
 
     for dir in input_dirs {
