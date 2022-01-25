@@ -3,26 +3,53 @@ use std::fs;
 use std::process::Command;
 use std::str::FromStr;
 
-const INPUT_DIRECTORY: &str = "/home/rafael/Desktop/AA/";
-const OUTPUT_DIRECTORY: &str = "/home/rafael/Desktop/BB/";
+const DEFAULT_INPUT_DIRECTORY: &str = "/home/rafael/Desktop/AA/";
+const DEFAULT_OUTPUT_DIRECTORY: &str = "/home/rafael/Desktop/BB/";
 
-#[derive(Parser, Debug)]
-#[clap(author, version, long_about = None)]
-struct Args {
-    #[clap(short, long)]
+fn main() {
+    let params = cli();
+
+    application(params);
+}
+
+struct Params {
+    pub use_default: String,
     pub input: String,
-
-    #[clap(short, long)]
     pub output: String,
 }
 
-fn main() {
+fn cli() -> Params {
+    #[derive(Parser, Debug)]
+    #[clap(author, version, about, long_about = None)]
+    struct Args {
+        #[clap(short, long, default_value = "y")]
+        use_default: String,
+
+        #[clap(short, long, default_value = "")]
+        input: String,
+
+        #[clap(short, long, default_value = "")]
+        output: String,
+    }
+
     let args = Args::parse();
+
     println!("{:?}", args);
+
+    Params {
+        use_default: args.use_default,
+        input: args.input,
+        output: args.output,
+    }
 }
 
-fn opa() {
-    let input_dirs = fs::read_dir(INPUT_DIRECTORY).unwrap();
+fn application(params: Params) {
+    let (input, output) = match params.use_default.as_str() {
+        "y" | "Y" | "yes" | "Yes" | "YES" => (DEFAULT_INPUT_DIRECTORY, DEFAULT_OUTPUT_DIRECTORY),
+        _ => (params.input.as_str(), params.output.as_str()),
+    };
+
+    let input_dirs = fs::read_dir(input).unwrap();
 
     for dir in input_dirs {
         let current_path = dir.unwrap().path().display().to_string();
@@ -37,7 +64,7 @@ fn opa() {
         match zip_command_spawn.unwrap().wait() {
             Ok(_) => {
                 let expected_zip_folder = zip_path.split("/").last().unwrap();
-                let mut expected_zipped_path = String::from_str(OUTPUT_DIRECTORY).unwrap();
+                let mut expected_zipped_path = String::from_str(output).unwrap();
                 expected_zipped_path.push_str(expected_zip_folder);
 
                 let remove_command_spawn = Command::new("rm")
@@ -48,7 +75,7 @@ fn opa() {
                     Ok(_) => {
                         Command::new("mv")
                             .arg(zip_path)
-                            .arg(OUTPUT_DIRECTORY)
+                            .arg(output)
                             .spawn()
                             .expect("[Err] - some error occur while move the zip");
                     }
